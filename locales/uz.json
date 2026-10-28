@@ -1,0 +1,13 @@
+{
+    "choose_language": "Iltimos, tilingizni tanlang:",
+    "welcome_desc": "Bu bot o'quv kontentlarini (video, rasm, fayl) xavfsiz almashish uchun yaratilgan.\n\n<b>Qoidalar:</b>\n- 18+ yoshdan kattalar uchun\n- Mualliflik huquqiga rioya qilish shart",
+    "btn_continue": "Davom etish",
+    "btn_exit": "Chiqish",
+    "exit_msg": "Botdan foydalanish bekor qilindi. Qaytadan boshlash uchun /start bosing.",
+    "captcha_prompt": "Shartlar qabul qilindi. Odam ekanligingizni tasdiqlang:",
+    "btn_captcha": "🛡 CAPTCHA dan o'tish",
+    "verified_success": "✅ Siz muvaffaqiyatli tasdiqlandingiz! Botdan to'liq foydalanishingiz mumkin.",
+    "menu_upload": "📤 Fayl yuborish",
+    "menu_get": "📥 Kontent olish",
+    "menu_profile": "👤 Profil"
+}

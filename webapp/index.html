@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,55 +7,63 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-        }
-        .card {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            text-align: center;
-        }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; margin: 0; color: #333; }
+        .container { background: #ffffff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); text-align: center; max-width: 320px; width: 100%; }
+        h2 { font-size: 18px; margin-bottom: 10px; }
+        p { font-size: 14px; color: #666; margin-bottom: 20px; }
+        #status { margin-top: 15px; font-size: 14px; font-weight: bold; }
     </style>
 </head>
 <body>
-    <div class="card">
-        <h3>Iltimos, odam ekanligingizni tasdiqlang</h3>
-        <p>Please verify that you are a human.</p>
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFpTdSdohCCNHVXH" data-callback="onSuccess"></div>
+    <div class="container">
+        <h2>Odam ekanligingizni tasdiqlang</h2>
+        <p>Iltimos, pastdagi tekshiruvdan o'ting.</p>
+
+        <!-- DIQQAT: data-sitekey qismiga o'zingizning Cloudflare Site Key kalitingizni yozing -->
+        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFpTdSdohCCNHVXH" data-callback="onTurnstileSuccess"></div>
+        <div id="status"></div>
     </div>
 
     <script>
+        Telegram.WebApp.ready();
         const tg = window.Telegram.WebApp;
-        tg.expand();
 
-        function onSuccess(token) {
-            const userId = tg.initDataUnsafe?.user?.id;
-            
-            fetch('/verify-captcha', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: token, user_id: userId })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    tg.close();
+        async function onTurnstileSuccess(token) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.style.color = '#007bff';
+            statusDiv.innerText = "Tekshirilmoqda...";
+
+            // ENDI user_id emas, butun initData yuboriladi!
+            const initData = tg.initData;
+
+            if (!initData) {
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = "Xatolik: Telegram ma'lumotlari topilmadi. Bot orqali qayta kiring.";
+                return;
+            }
+
+            try {
+                const response = await fetch('/verify-captcha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, initData: initData })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    statusDiv.style.color = 'green';
+                    statusDiv.innerText = "Muvaffaqiyatli tasdiqlandi! Qaytirilmoqda...";
+                    setTimeout(() => { tg.close(); }, 1500);
                 } else {
-                    alert('Xatolik yuz berdi. Qaytadan urinib ko\'ring.');
+                    statusDiv.style.color = 'red';
+                    statusDiv.innerText = "Xatolik: " + (result.error || "Noma'lum xato");
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
+            } catch (error) {
+                statusDiv.style.color = 'red';
+                statusDiv.innerText = "Tarmoqda xatolik yuz berdi!";
+                console.error(error);
+            }
         }
     </script>
 </body>

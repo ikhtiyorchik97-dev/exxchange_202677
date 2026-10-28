@@ -1,0 +1,13 @@
+{
+    "choose_language": "Please select your language:",
+    "welcome_desc": "This bot is designed for the secure exchange of educational content (video, photo, files).\n\n<b>Rules:</b>\n- For adults 18+\n- Copyright compliance is mandatory",
+    "btn_continue": "Continue",
+    "btn_exit": "Exit",
+    "exit_msg": "Bot usage cancelled. Press /start to begin again.",
+    "captcha_prompt": "Terms accepted. Please verify you are human:",
+    "btn_captcha": "🛡 Pass CAPTCHA",
+    "verified_success": "✅ You have been successfully verified! You can now use the bot fully.",
+    "menu_upload": "📤 Upload file",
+    "menu_get": "📥 Get content",
+    "menu_profile": "👤 Profile"
+}

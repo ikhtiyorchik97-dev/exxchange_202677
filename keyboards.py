@@ -1,7 +1,10 @@
+# keyboards.py
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
+from i18n import get_text
 
 def get_language_keyboard():
     languages = [
+        ("🇺🇿 O'zbekcha", "lang_uz"),
         ("English", "lang_en"),
         ("Русский", "lang_ru"),
         ("中文", "lang_zh"),
@@ -19,28 +22,28 @@ def get_language_keyboard():
     return keyboard
 
 def get_description_keyboard(lang_code: str):
-    texts = {
-        "ru": {"cont": "Продолжить", "exit": "Выйти"},
-        "en": {"cont": "Continue", "exit": "Exit"},
-        "es": {"cont": "Continuar", "exit": "Salir"},
-        "fr": {"cont": "Continuer", "exit": "Quitter"},
-        "ar": {"cont": "متابعة", "exit": "خروج"},
-        "zh": {"cont": "继续", "exit": "退出"},
-        "hi": {"cont": "जारी रखें", "exit": "बाहर निकलें"}
-    }
-    t = texts.get(lang_code, texts["en"])
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
         [
-            InlineKeyboardButton(text=t["cont"], callback_data="btn_continue"),
-            InlineKeyboardButton(text=t["exit"], callback_data="btn_exit")
+            InlineKeyboardButton(text=get_text(lang_code, "btn_continue"), callback_data="btn_continue"),
+            InlineKeyboardButton(text=get_text(lang_code, "btn_exit"), callback_data="btn_exit")
         ]
     ])
     return keyboard
 
-def get_main_menu():
-    return ReplyKeyboardMarkup(
+def get_captcha_keyboard(lang_code: str, web_app_url: str):
+    from aiogram.types import WebAppInfo
+    keyboard = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text=get_text(lang_code, "btn_captcha"), web_app=WebAppInfo(url=web_app_url))]
+    ])
+    return keyboard
+
+def get_main_menu(lang_code: str):
+    # PDFga muvofiq asosiy menyu (Reply yoki Inline bo'lishi mumkin, hozircha Reply qilamiz)
+    keyboard = ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="📥 Kontent olish")]
+            [KeyboardButton(text=get_text(lang_code, "menu_upload")), KeyboardButton(text=get_text(lang_code, "menu_get"))],
+            [KeyboardButton(text=get_text(lang_code, "menu_profile"))]
         ],
         resize_keyboard=True
     )
+    return keyboard
