@@ -18,9 +18,10 @@
     <div class="container">
         <h2>Odam ekanligingizni tasdiqlang</h2>
         <p>Iltimos, pastdagi tekshiruvdan o'ting.</p>
-
-        <!-- DIQQAT: data-sitekey qismiga o'zingizning Cloudflare Site Key kalitingizni yozing -->
-        <div class="cf-turnstile" data-sitekey="0x4AAAAAAFpTdSdohCCNHVXH" data-callback="onTurnstileSuccess"></div>
+        
+        <!-- DIQQAT: data-sitekey qismiga Cloudflare'dan olgan Site Key'ingizni yozing -->
+        <div class="cf-turnstile" data-sitekey="SIZNING_SITE_KEYINGIZ" data-callback="onTurnstileSuccess"></div>
+        
         <div id="status"></div>
     </div>
 
@@ -33,12 +34,13 @@
             statusDiv.style.color = '#007bff';
             statusDiv.innerText = "Tekshirilmoqda...";
 
-            // ENDI user_id emas, butun initData yuboriladi!
             const initData = tg.initData;
+            const urlParams = new URLSearchParams(window.location.search);
+            const fallbackUserId = urlParams.get('user_id');
 
-            if (!initData) {
+            if (!initData && !fallbackUserId) {
                 statusDiv.style.color = 'red';
-                statusDiv.innerText = "Xatolik: Telegram ma'lumotlari topilmadi. Bot orqali qayta kiring.";
+                statusDiv.innerText = "Xatolik: Foydalanuvchi ID topilmadi.";
                 return;
             }
 
@@ -46,7 +48,11 @@
                 const response = await fetch('/verify-captcha', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: token, initData: initData })
+                    body: JSON.stringify({ 
+                        token: token, 
+                        initData: initData,
+                        fallback_user_id: fallbackUserId
+                    })
                 });
 
                 const result = await response.json();
