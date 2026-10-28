@@ -9,42 +9,37 @@ from i18n import get_text
 
 router = Router()
 
-
 @router.message(Command("start"))
 async def cmd_start(message: Message):
     user_id = message.from_user.id
 
-    # Foydalanuvchini tekshiramiz. Agar bloklangan bo'lsa, javob bermaymiz.
+    # Bloklangan foydalanuvchini tekshirish
     user = get_user(user_id)
     if user and user['state'] == 'blocked':
         return
 
-    # Agar allaqachon verified bo'lsa, to'g'ridan-to'g'ri qabul qilamiz
+    # Agar allaqachon verified bo'lsa
     if user and user['state'] == 'verified':
         lang = user['language']
         await message.answer(get_text(lang, "verified_success"))
         return
 
-    # Yangi foydalanuvchi yoki qaytgan foydalanuvchi
+    # Yangi foydalanuvchi
     create_or_update_user(user_id, state="new")
 
-    text = get_text("uz", "choose_language")  # Universal xabar
+    text = get_text("uz", "choose_language")
     await message.answer(text, reply_markup=get_language_keyboard())
-
 
 @router.callback_query(F.data.startswith("lang_"))
 async def process_language_selection(callback: CallbackQuery):
     user_id = callback.from_user.id
     lang_code = callback.data.split("_")[1]
 
-    # Holatni lang_selected ga o'zgartiramiz
     create_or_update_user(user_id, language=lang_code, state="lang_selected")
 
     desc_text = get_text(lang_code, "welcome_desc")
-
     await callback.message.edit_text(desc_text, reply_markup=get_description_keyboard(lang_code))
     await callback.answer()
-
 
 @router.callback_query(F.data == "btn_exit")
 async def process_exit(callback: CallbackQuery):
@@ -52,7 +47,6 @@ async def process_exit(callback: CallbackQuery):
     lang = user['language'] if user else 'uz'
     await callback.message.edit_text(get_text(lang, "exit_msg"))
     await callback.answer()
-
 
 @router.callback_query(F.data == "btn_continue")
 async def process_continue(callback: CallbackQuery):
@@ -64,12 +58,14 @@ async def process_continue(callback: CallbackQuery):
         return
 
     lang = user['language']
-
-    # Holatni intent_confirmed ga o'zgartiramiz
     create_or_update_user(user_id, state="intent_confirmed")
 
-    # CAPTCHA tugmasini chiqaramiz
-    web_app_url = config.WEB_APP_URL
+    # URL ni to'g'rilash va user_id ni qo'shish (fallback uchun)
+    base_url = config.WEB_APP_URL
+    if not base_url.endswith('/'):
+        base_url += '/'
+    web_app_url = f"{base_url}?user_id={user_id}"
+
     await callback.message.edit_text(
         get_text(lang, "captcha_prompt"),
         reply_markup=get_captcha_keyboard(lang, web_app_url)
